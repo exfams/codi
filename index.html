@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalkulator Kasir Premium</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    :root {
+      --blue: #2196f3;
+      --green: #27ae60;
+      --red: #e74c3c;
+      --yellow: #f39c12;
+      --text-dark: #2c3e50;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #2196f3);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      max-width: 1200px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ===== KALKULATOR ===== */
+    .calc-section {
+      background: linear-gradient(135deg, #2d5aa5 0%, #1e3a8a 100%);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      width: 360px;
+    }
+
+    .calc-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .calc-header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .calc-header p {
+      margin: 4px 0 0 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .screen {
+      background: #ecf0f1;
+      border: 3px solid #34495e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: right;
+      box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .screen .expr {
+      font-size: 13px;
+      color: #7f8c8d;
+      font-weight: 500;
+      margin-bottom: 4px;
+      min-height: 18px;
+    }
+
+    .screen .result {
+      font-size: 42px;
+      font-weight: 800;
+      color: #2c3e50;
+      word-break: break-all;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+      background: #ecf0f1;
+      color: var(--text-dark);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-ops {
+      background: #f39c12;
+      color: white;
+      font-weight: 800;
+    }
+
+    .btn-clear {
+      background: #e74c3c;
+      color: white;
+      font-weight: 800;
+    }
+
+    .btn-del {
+      background: #e67e22;
+      color: white;
+      font-weight: 800;
+    }
+
+    .btn-equals {
+      grid-column: span 2;
+      background: #27ae60;
+      color: white;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    /* ===== RESI / RECEIPT ===== */
+    .receipt-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      width: 360px;
+      border: 3px dashed #27ae60;
+    }
+
+    .receipt-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 12px;
+    }
+
+    .receipt-header h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .receipt-header p {
+      margin: 4px 0 0 0;
+      font-size: 12px;
+      color: #95a5a6;
+    }
+
+    .receipt-content {
+      min-height: 200px;
+      margin-bottom: 20px;
+    }
+
+    .payment-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .payment-item-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .payment-item-value {
+      background: var(--green);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .receipt-total {
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    }
+
+    .receipt-total-label {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .receipt-total-value {
+      font-size: 36px;
+      font-weight: 800;
+    }
+
+    .receipt-footer {
+      text-align: center;
+      font-size: 11px;
+      color: #95a5a6;
+      padding-top: 12px;
+      border-top: 1px dotted #ecf0f1;
+    }
+
+    .btn-clear-history {
+      width: 100%;
+      padding: 12px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 16px;
+    }
+
+    .btn-clear-history:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .receipt-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: #bdc3c7;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 999;
+    }
+
+    #clearHistoryCheckbox:checked ~ .modal-overlay {
+      display: block;
+    }
+
+    .modal-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      z-index: 1000;
+      min-width: 320px;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      animation: slideUp 0.3s ease;
+    }
+
+    #clearHistoryCheckbox:checked ~ .modal-dialog {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .modal-header {
+      margin-bottom: 16px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .modal-text {
+      margin: 0 0 24px 0;
+      font-size: 14px;
+      color: #7f8c8d;
+      line-height: 1.6;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+      background: #ecf0f1;
+      color: var(--text-dark);
+    }
+
+    .modal-btn-cancel:hover {
+      background: #bdc3c7;
+    }
+
+    .modal-btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .modal-btn-delete:hover {
+      background: #c0392b;
+    }
+
+    .history-item-icon {
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        gap: 20px;
+      }
+
+      .calc-section, .receipt-section {
+        width: 100%;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- KALKULATOR -->
+    <div class="calc-section">
+      <div class="calc-header">
+      </div>
+
+      <div class="screen" id="screen">
+        <div class="expr" id="expr"></div>
+        <div class="result" id="result">0</div>
+      </div>
+
+      <div class="keys">
+        <button class="btn btn-clear" data-action="clear">AC</button>
+        <button class="btn btn-del" data-action="back">⌫</button>
+        <button class="btn btn-ops" data-value="%">%</button>
+        <button class="btn btn-ops" data-value="/">÷</button>
+
+        <button class="btn" data-value="7">7</button>
+        <button class="btn" data-value="8">8</button>
+        <button class="btn" data-value="9">9</button>
+        <button class="btn btn-ops" data-value="*">×</button>
+
+        <button class="btn" data-value="4">4</button>
+        <button class="btn" data-value="5">5</button>
+        <button class="btn" data-value="6">6</button>
+        <button class="btn btn-ops" data-value="-">−</button>
+
+        <button class="btn" data-value="1">1</button>
+        <button class="btn" data-value="2">2</button>
+        <button class="btn" data-value="3">3</button>
+        <button class="btn btn-ops" data-value="+">+</button>
+
+        <button class="btn" data-value="0" style="grid-column: span 2;">0</button>
+        <button class="btn btn-equals" data-action="equals">=</button>
+      </div>
+    </div>
+
+    <!-- RESI PEMBAYARAN -->
+    <div class="receipt-section">
+      <label for="clearHistoryCheckbox" class="btn-clear-history">Hapus Semua</label><br><br>
+        
+      <div class="receipt-header">
+        <h2>💵 RIWAYAT</h2>
+        <p>Hasil Perhitungan</p>
+      </div>
+
+      <div class="receipt-content" id="historyList">
+        <div class="receipt-empty">📝 Belum ada transaksi</div>
+      </div>
+
+      <div class="receipt-footer">
+        FamsssPay Kasir
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN CHECKBOX & MODAL -->
+  <input type="checkbox" id="clearHistoryCheckbox" style="display: none;">
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>⚠️ Hapus Riwayat</h3>
+    </div>
+    <p class="modal-text">Apakah Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="modal-actions">
+      <label for="clearHistoryCheckbox" class="modal-btn modal-btn-cancel">Batal</label>
+      <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">Hapus Semua</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const exprEl = document.getElementById('expr');
+      const resultEl = document.getElementById('result');
+      const historyList = document.getElementById('historyList');
+      const clearHistoryCheckbox = document.getElementById('clearHistoryCheckbox');
+      const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      const keys = document.querySelectorAll('.btn');
+
+      let displayValue = '0';
+      let expr = '';
+      let previousValue = null;
+      let currentOp = null;
+      let shouldResetDisplay = false;
+
+      const HISTORY_KEY = 'calculator_history';
+
+      function loadHistory() {
+        try {
+          const stored = localStorage.getItem(HISTORY_KEY);
+          return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveHistory(history) {
+        try {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        } catch (e) {
+          console.error('Error saving history:', e);
+        }
+      }
+
+      function displayHistory() {
+        const history = loadHistory();
+        historyList.innerHTML = '';
+
+        if (history.length === 0) {
+          historyList.innerHTML = '<div class="receipt-empty">📝 Belum ada transaksi</div>';
+          return;
+        }
+
+        history.forEach((item) => {
+          const div = document.createElement('div');
+          div.className = 'payment-item';
+          div.innerHTML = `
+            <div class="payment-item-label">
+              <span class="history-item-icon">🧾</span>
+              <span>${item.expr}</span>
+            </div>
+            <div class="payment-item-value">$${item.result}</div>
+          `;
+          div.addEventListener('click', () => {
+            displayValue = item.result;
+            expr = '';
+            previousValue = null;
+            currentOp = null;
+            shouldResetDisplay = true;
+            updateScreen();
+          });
+          historyList.appendChild(div);
+        });
+      }
+
+      function addToHistory(expression, result) {
+        const history = loadHistory();
+        history.push({
+          expr: expression,
+          result: formatNumber(result),
+          timestamp: new Date().toLocaleTimeString('id-ID')
+        });
+        if (history.length > 50) history.shift();
+        saveHistory(history);
+        displayHistory();
+      }
+
+      confirmDeleteBtn.addEventListener('click', () => {
+        localStorage.removeItem(HISTORY_KEY);
+        displayHistory();
+        clearHistoryCheckbox.checked = false;
+      });
+
+      function formatNumber(num) {
+        if (num === null || num === undefined || !Number.isFinite(num)) return '0';
+        const numStr = String(num);
+        if (numStr.includes('e') || numStr.includes('E')) {
+          return num.toLocaleString('id-ID', {
+            maximumFractionDigits: 10,
+            minimumFractionDigits: 0
+          });
+        }
+        if (numStr.includes('.')) {
+          const [int, dec] = numStr.split('.');
+          const formattedInt = parseInt(int).toLocaleString('id-ID');
+          return formattedInt + '.' + dec;
+        }
+        return parseInt(numStr).toLocaleString('id-ID');
+      }
+
+      function updateScreen() {
+        exprEl.textContent = expr || '';
+        resultEl.textContent = formatNumber(parseFloat(displayValue) || 0);
+      }
+
+      function append(v) {
+        if (shouldResetDisplay) {
+          displayValue = v;
+          shouldResetDisplay = false;
+        } else {
+          if (v === '.') {
+            if (displayValue.includes('.')) return;
+          }
+          displayValue = displayValue === '0' ? v : displayValue + v;
+        }
+        updateScreen();
+      }
+
+      function handleOperator(op) {
+        if (currentOp !== null && !shouldResetDisplay) {
+          const curr = parseFloat(displayValue);
+          const prev = parseFloat(previousValue);
+          let result;
+          switch (currentOp) {
+            case '+': result = prev + curr; break;
+            case '-': result = prev - curr; break;
+            case '*': result = prev * curr; break;
+            case '/': result = prev / curr; break;
+            case '%': result = prev % curr; break;
+            default: result = curr;
+          }
+          displayValue = String(result);
+          expr = formatNumber(result) + ' ' + op;
+        } else {
+          expr = formatNumber(parseFloat(displayValue)) + ' ' + op;
+        }
+        previousValue = displayValue;
+        currentOp = op;
+        shouldResetDisplay = true;
+        updateScreen();
+      }
+
+      function clearAll() {
+        displayValue = '0';
+        expr = '';
+        previousValue = null;
+        currentOp = null;
+        shouldResetDisplay = false;
+        updateScreen();
+      }
+
+      function backspace() {
+        if (displayValue.length > 1) {
+          displayValue = displayValue.slice(0, -1);
+        } else {
+          displayValue = '0';
+        }
+        updateScreen();
+      }
+
+      function equals() {
+        if (currentOp === null || shouldResetDisplay) return;
+        const curr = parseFloat(displayValue);
+        const prev = parseFloat(previousValue);
+        let result;
+        switch (currentOp) {
+          case '+': result = prev + curr; break;
+          case '-': result = prev - curr; break;
+          case '*': result = prev * curr; break;
+          case '/': result = prev / curr; break;
+          case '%': result = prev % curr; break;
+          default: result = curr;
+        }
+        if (!Number.isFinite(result)) {
+          resultEl.textContent = 'Error';
+          return;
+        }
+        const expStr = formatNumber(prev) + ' ' + currentOp + ' ' + formatNumber(curr);
+        addToHistory(expStr, result);
+        displayValue = String(result);
+        expr = formatNumber(prev) + ' ' + currentOp + ' ' + formatNumber(curr) + ' =';
+        previousValue = null;
+        currentOp = null;
+        shouldResetDisplay = true;
+        updateScreen();
+      }
+
+      keys.forEach(k => {
+        k.addEventListener('click', function() {
+          const v = this.getAttribute('data-value');
+          const action = this.getAttribute('data-action');
+          if (action === 'clear') { clearAll(); return; }
+          if (action === 'back') { backspace(); return; }
+          if (action === 'equals') { equals(); return; }
+          if (['+', '-', '*', '/', '%'].includes(v)) { handleOperator(v); return; }
+          if (v) { append(v); }
+        });
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { equals(); e.preventDefault(); }
+        else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
+        else if (e.key === 'Escape') { clearAll(); e.preventDefault(); }
+        else if (['+', '-', '*', '/', '%'].includes(e.key)) { handleOperator(e.key); e.preventDefault(); }
+        else if ('0123456789+*/.%'.includes(e.key)) { append(e.key); e.preventDefault(); }
+      });
+
+      updateScreen();
+      displayHistory();
+    })();
+  </script>
+</body>
+</html>
