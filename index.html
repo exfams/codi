@@ -1,668 +1,764 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kalkulator Kasir Premium</title>
-  <style>
-    * { box-sizing: border-box; }
-    
-    :root {
-      --blue: #2196f3;
-      --green: #27ae60;
-      --red: #e74c3c;
-      --yellow: #f39c12;
-      --text-dark: #2c3e50;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Web Code Studio - Editor</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: "Segoe UI", sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    height: 45px;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    border-bottom: 1px solid #000;
+    gap: 10px;
+  }
+
+  .topbar .title {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  .topbar button {
+    background: transparent;
+    border: none;
+    color: #d4d4d4;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .topbar button:hover {
+    background: #3a3a3a;
+  }
+  .topbar button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* HIGHLIGHT SEARCH */
+  .search-highlight {
+    background: #ffff00;
+    color: #000;
+    font-weight: bold;
+    animation: highlight-blink 0.6s ease-in-out;
+  }
+
+  @keyframes highlight-blink {
+    0%, 100% { background: #ffff00; }
+    50% { background: #ffcc00; }
+  }
+
+  /* CONTAINER */
+  .container {
+    display: flex;
+    height: calc(100vh - 45px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 60px;
+    background: #252526;
+    border-right: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+  }
+
+  .sidebar-icon {
+    width: 40px;
+    height: 40px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .sidebar-icon:hover {
+    background: #444;
+  }
+
+  /* EDITOR */
+  .editor {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    background: #1e1e1e;
+    border-right: 1px solid #000;
+  }
+
+  .editor-header {
+    background: #252526;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  textarea {
+    flex: 1;
+    background: #1e1e1e;
+    color: #e8e8e8;
+    padding: 15px;
+    font-family: "Consolas", monospace;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+  }
+
+  /* PREVIEW */
+  .preview {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .preview-header {
+    background: #252526;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+    font-size: 12px;
+    opacity: 0.7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .error-badge {
+    background: #f44747;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  iframe {
+    flex: 1;
+    border: none;
+    background: white;
+  }
+
+  /* SEARCH MODAL */
+  .search-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-modal.active {
+    display: flex;
+  }
+
+  .search-box {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    min-width: 300px;
+  }
+
+  .search-box h3 {
+    margin-top: 0;
+    color: #d4d4d4;
+    font-size: 14px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 10px;
+    background: #1e1e1e;
+    border: 1px solid #444;
+    color: #d4d4d4;
+    border-radius: 4px;
+    font-family: "Consolas", monospace;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: #0078ff;
+  }
+
+  .search-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .search-controls button {
+    flex: 1;
+    padding: 8px;
+    background: #0078ff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .search-controls button:hover {
+    background: #005a9e;
+  }
+
+  .search-controls button.close {
+    background: #444;
+    color: #d4d4d4;
+  }
+
+  .search-results {
+    color: #d4d4d4;
+    font-size: 12px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .result-item {
+    background: #1e1e1e;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    border-left: 3px solid #0078ff;
+  }
+
+  .result-item:hover {
+    background: #2a2a2a;
+  }
+
+  /* ERROR MODAL */
+  .error-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-modal.active {
+    display: flex;
+  }
+
+  .error-box {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    min-width: 350px;
+    border-left: 4px solid #f44747;
+  }
+
+  .error-box h3 {
+    margin-top: 0;
+    color: #f44747;
+    font-size: 14px;
+  }
+
+  .error-message {
+    background: #1e1e1e;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: "Consolas", monospace;
+    font-size: 12px;
+    color: #d4d4d4;
+    margin-bottom: 10px;
+    overflow-x: auto;
+  }
+
+  .error-line {
+    color: #f44747;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .error-box button {
+    width: 100%;
+    padding: 10px;
+    background: #0078ff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .error-box button:hover {
+    background: #005a9e;
+  }
+
+  /* MOBILE STYLES */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 50px;
     }
 
-    body {
-      margin: 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #2196f3);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      display: flex;
-      gap: 30px;
-      max-width: 1200px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    /* ===== KALKULATOR ===== */
-    .calc-section {
-      background: linear-gradient(135deg, #2d5aa5 0%, #1e3a8a 100%);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      width: 360px;
-    }
-
-    .calc-header {
-      text-align: center;
-      color: white;
-      margin-bottom: 20px;
-    }
-
-    .calc-header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 700;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .calc-header p {
-      margin: 4px 0 0 0;
-      font-size: 12px;
-      opacity: 0.9;
-    }
-
-    .screen {
-      background: #ecf0f1;
-      border: 3px solid #34495e;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-      text-align: right;
-      box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .screen .expr {
-      font-size: 13px;
-      color: #7f8c8d;
-      font-weight: 500;
-      margin-bottom: 4px;
-      min-height: 18px;
-    }
-
-    .screen .result {
-      font-size: 42px;
-      font-weight: 800;
-      color: #2c3e50;
-      word-break: break-all;
-    }
-
-    .keys {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    .btn {
-      padding: 18px;
-      border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
-      background: #ecf0f1;
-      color: var(--text-dark);
-    }
-
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .btn:active {
-      transform: translateY(3px);
-      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-ops {
-      background: #f39c12;
-      color: white;
-      font-weight: 800;
-    }
-
-    .btn-clear {
-      background: #e74c3c;
-      color: white;
-      font-weight: 800;
-    }
-
-    .btn-del {
-      background: #e67e22;
-      color: white;
-      font-weight: 800;
-    }
-
-    .btn-equals {
-      grid-column: span 2;
-      background: #27ae60;
-      color: white;
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    /* ===== RESI / RECEIPT ===== */
-    .receipt-section {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      width: 360px;
-      border: 3px dashed #27ae60;
-    }
-
-    .receipt-header {
-      text-align: center;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #ecf0f1;
-      padding-bottom: 12px;
-    }
-
-    .receipt-header h2 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--green);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .receipt-header p {
-      margin: 4px 0 0 0;
-      font-size: 12px;
-      color: #95a5a6;
-    }
-
-    .receipt-content {
-      min-height: 200px;
-      margin-bottom: 20px;
-    }
-
-    .payment-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .payment-item-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #2c3e50;
-      font-weight: 600;
-    }
-
-    .payment-item-value {
-      background: var(--green);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-weight: 700;
-      min-width: 80px;
-      text-align: right;
-    }
-
-    .receipt-total {
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-    }
-
-    .receipt-total-label {
-      font-size: 12px;
-      opacity: 0.9;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .receipt-total-value {
-      font-size: 36px;
-      font-weight: 800;
-    }
-
-    .receipt-footer {
-      text-align: center;
-      font-size: 11px;
-      color: #95a5a6;
-      padding-top: 12px;
-      border-top: 1px dotted #ecf0f1;
-    }
-
-    .btn-clear-history {
-      width: 100%;
-      padding: 12px;
-      background: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 16px;
-    }
-
-    .btn-clear-history:hover {
-      background: #c0392b;
-      transform: translateY(-2px);
-    }
-
-    .receipt-empty {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 200px;
-      color: #bdc3c7;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    /* Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 999;
-    }
-
-    #clearHistoryCheckbox:checked ~ .modal-overlay {
-      display: block;
-    }
-
-    .modal-dialog {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      z-index: 1000;
-      min-width: 320px;
-      max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      animation: slideUp 0.3s ease;
-    }
-
-    #clearHistoryCheckbox:checked ~ .modal-dialog {
-      display: block;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translate(-50%, -40%);
-      }
-      to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-      }
-    }
-
-    .modal-header {
-      margin-bottom: 16px;
-    }
-
-    .modal-header h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .modal-text {
-      margin: 0 0 24px 0;
-      font-size: 14px;
-      color: #7f8c8d;
-      line-height: 1.6;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .modal-btn {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .modal-btn-cancel {
-      background: #ecf0f1;
-      color: var(--text-dark);
-    }
-
-    .modal-btn-cancel:hover {
-      background: #bdc3c7;
-    }
-
-    .modal-btn-delete {
-      background: #e74c3c;
-      color: white;
-    }
-
-    .modal-btn-delete:hover {
-      background: #c0392b;
-    }
-
-    .history-item-icon {
+    .sidebar-icon {
+      width: 36px;
+      height: 36px;
       font-size: 16px;
     }
 
-    @media (max-width: 768px) {
-      .container {
-        gap: 20px;
-      }
-
-      .calc-section, .receipt-section {
-        width: 100%;
-      }
+    .topbar {
+      flex-wrap: wrap;
     }
 
+    .topbar .title {
+      flex: 1;
+      min-width: 100%;
+    }
+
+    .topbar button {
+      flex: 1;
+      font-size: 11px;
+      padding: 6px 4px;
+    }
+
+    .editor,
+    .preview {
+      width: 100%;
+      position: absolute;
+      height: calc(100vh - 45px - 60px);
+      top: 45px;
+      left: 0;
+    }
+
+    .editor {
+      left: 50px;
+      width: calc(100% - 50px);
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .preview {
+      left: 50px;
+      width: calc(100% - 50px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .preview.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .editor.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    textarea {
+      font-size: 13px;
+      padding: 12px;
+    }
+
+    .topbar button {
+      padding: 6px 8px;
+    }
+
+    .search-box {
+      min-width: 90vw;
+      max-width: 400px;
+    }
+
+    .error-box {
+      min-width: 90vw;
+      max-width: 400px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .topbar button {
+      font-size: 10px;
+      padding: 4px 6px;
+    }
+
+    textarea {
+      font-size: 12px;
+      padding: 10px;
+    }
+
+    .topbar .title {
+      font-size: 12px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+
+
+<!-- MAIN LAYOUT -->
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-icon">📁</div>
+    <div class="sidebar-icon">⚙️</div>
+    <div class="sidebar-icon" onclick="toggleView()">🖥</div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor">
+    <div class="editor-header">EDITOR</div>
+    <textarea id="codeEditor" oninput="handleCodeChange()"><!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      background: #0078ff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- KALKULATOR -->
-    <div class="calc-section">
-      <div class="calc-header">
-      </div>
-
-      <div class="screen" id="screen">
-        <div class="expr" id="expr"></div>
-        <div class="result" id="result">0</div>
-      </div>
-
-      <div class="keys">
-        <button class="btn btn-clear" data-action="clear">AC</button>
-        <button class="btn btn-del" data-action="back">⌫</button>
-        <button class="btn btn-ops" data-value="%">%</button>
-        <button class="btn btn-ops" data-value="/">÷</button>
-
-        <button class="btn" data-value="7">7</button>
-        <button class="btn" data-value="8">8</button>
-        <button class="btn" data-value="9">9</button>
-        <button class="btn btn-ops" data-value="*">×</button>
-
-        <button class="btn" data-value="4">4</button>
-        <button class="btn" data-value="5">5</button>
-        <button class="btn" data-value="6">6</button>
-        <button class="btn btn-ops" data-value="-">−</button>
-
-        <button class="btn" data-value="1">1</button>
-        <button class="btn" data-value="2">2</button>
-        <button class="btn" data-value="3">3</button>
-        <button class="btn btn-ops" data-value="+">+</button>
-
-        <button class="btn" data-value="0" style="grid-column: span 2;">0</button>
-        <button class="btn btn-equals" data-action="equals">=</button>
-      </div>
-    </div>
-
-    <!-- RESI PEMBAYARAN -->
-    <div class="receipt-section">
-      <label for="clearHistoryCheckbox" class="btn-clear-history">Hapus Semua</label><br><br>
-        
-      <div class="receipt-header">
-        <h2>💵 RIWAYAT</h2>
-        <p>Hasil Perhitungan</p>
-      </div>
-
-      <div class="receipt-content" id="historyList">
-        <div class="receipt-empty">📝 Belum ada transaksi</div>
-      </div>
-
-      <div class="receipt-footer">
-        FamsssPay Kasir
-      </div>
-    </div>
+  <h1>Hello World!</h1>
+  <p>Ini adalah hasil preview dari code editor.</p>
+  <button onclick="alert('Button clicked!')">Click Me</button>
+</body>
+</html></textarea>
   </div>
 
-  <!-- HIDDEN CHECKBOX & MODAL -->
-  <input type="checkbox" id="clearHistoryCheckbox" style="display: none;">
-  <div class="modal-overlay" id="modalOverlay"></div>
-  <div class="modal-dialog">
-    <div class="modal-header">
-      <h3>⚠️ Hapus Riwayat</h3>
+  <!-- PREVIEW -->
+  <div class="preview" id="previewPanel">
+    <div class="preview-header">
+      <span>PREVIEW</span>
+      <span class="error-badge" id="errorBadge" style="display: none;">❌ ERROR</span>
     </div>
-    <p class="modal-text">Apakah Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat dibatalkan.</p>
-    <div class="modal-actions">
-      <label for="clearHistoryCheckbox" class="modal-btn modal-btn-cancel">Batal</label>
-      <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">Hapus Semua</button>
-    </div>
+    <iframe id="livePreview"></iframe>
   </div>
 
-  <script>
-    (function() {
-      const exprEl = document.getElementById('expr');
-      const resultEl = document.getElementById('result');
-      const historyList = document.getElementById('historyList');
-      const clearHistoryCheckbox = document.getElementById('clearHistoryCheckbox');
-      const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-      const keys = document.querySelectorAll('.btn');
+</div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="title">📄 index.html</div>
+  <button onclick="undo()" id="undoBtn" title="Undo">↶ Undo</button>
+  <button onclick="redo()" id="redoBtn" title="Redo">↷ Redo</button>
+  <button onclick="openSearch()">🔍 Cari</button>
+  <button onclick="copyCode()">📋 Copy</button>
+  <button onclick="resetCode()">♻ Reset</button>
+  <button onclick="downloadCode()">⬇ Download</button>
+</div>
+<!-- SEARCH MODAL -->
+<div class="search-modal" id="searchModal">
+  <div class="search-box">
+    <h3>🔍 Cari dalam Code</h3>
+    <input type="text" id="searchInput" placeholder="Ketik kata, kalimat, atau huruf..." onkeyup="performSearch()">
+    <div class="search-controls">
+      <button onclick="goToPreviousResult()">← Sebelumnya</button>
+      <button onclick="goToNextResult()">Selanjutnya →</button>
+      <button class="close" onclick="closeSearch()">Tutup</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
 
-      let displayValue = '0';
-      let expr = '';
-      let previousValue = null;
-      let currentOp = null;
-      let shouldResetDisplay = false;
+<!-- ERROR MODAL -->
+<div class="error-modal" id="errorModal">
+  <div class="error-box">
+    <h3>⚠️ Ada Kesalahan dalam Coding</h3>
+    <div class="error-message">
+      <div class="error-line" id="errorTitle"></div>
+      <div id="errorDetails"></div>
+    </div>
+    <button onclick="closeError()">Tutup</button>
+  </div>
+</div>
 
-      const HISTORY_KEY = 'calculator_history';
+<script>
+  let isEditorMode = true;
+  let searchResults = [];
+  let currentSearchIndex = 0;
+  let history = [""];
+  let historyIndex = 0;
 
-      function loadHistory() {
-        try {
-          const stored = localStorage.getItem(HISTORY_KEY);
-          return stored ? JSON.parse(stored) : [];
-        } catch (e) {
-          return [];
+  // UNDO/REDO SYSTEM
+  function handleCodeChange() {
+    const code = document.getElementById("codeEditor").value;
+    
+    // Jika ada perubahan, hapus history yang lebih maju
+    if (historyIndex < history.length - 1) {
+      history = history.slice(0, historyIndex + 1);
+    }
+    
+    history.push(code);
+    historyIndex++;
+    
+    updatePreview();
+  updateUndoRedoButtons();
+    updateUndoRedoButtons();
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      document.getElementById("codeEditor").value = history[historyIndex];
+      updatePreview();
+      updateUndoRedoButtons();
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      document.getElementById("codeEditor").value = history[historyIndex];
+      updatePreview();
+      updateUndoRedoButtons();
+    }
+  }
+
+  function updateUndoRedoButtons() {
+    document.getElementById("undoBtn").disabled = historyIndex === 0;
+    document.getElementById("redoBtn").disabled = historyIndex === history.length - 1;
+  }
+
+  function updatePreview() {
+    const code = document.getElementById("codeEditor").value;
+    const iframe = document.getElementById("livePreview");
+    
+    try {
+      // Cek validasi HTML dasar
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = code;
+      
+      iframe.srcdoc = code;
+      document.getElementById("errorBadge").style.display = "none";
+    } catch (err) {
+      showError("HTML Parse Error", err.message);
+      document.getElementById("errorBadge").style.display = "inline-block";
+    }
+
+    // Monitor iframe untuk runtime errors
+    setTimeout(() => {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc) {
+          const scripts = iframeDoc.scripts;
+          // Check untuk syntax errors dalam script
         }
+      } catch (err) {
+        console.log("Iframe error:", err);
       }
+    }, 500);
+  }
 
-      function saveHistory(history) {
-        try {
-          localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-        } catch (e) {
-          console.error('Error saving history:', e);
-        }
-      }
+  function copyCode() {
+    const code = document.getElementById("codeEditor").value;
+    navigator.clipboard.writeText(code);
+    alert("Code berhasil dicopy!");
+  }
 
-      function displayHistory() {
-        const history = loadHistory();
-        historyList.innerHTML = '';
+  function resetCode() {
+    if (confirm("Yakin ingin reset code?")) {
+      document.getElementById("codeEditor").value = "";
+      updatePreview();
+    }
+  }
 
-        if (history.length === 0) {
-          historyList.innerHTML = '<div class="receipt-empty">📝 Belum ada transaksi</div>';
-          return;
-        }
+  function downloadCode() {
+    const code = document.getElementById("codeEditor").value;
+    const blob = new Blob([code], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "index.html";
+    a.click();
+  }
 
-        history.forEach((item) => {
-          const div = document.createElement('div');
-          div.className = 'payment-item';
-          div.innerHTML = `
-            <div class="payment-item-label">
-              <span class="history-item-icon">🧾</span>
-              <span>${item.expr}</span>
-            </div>
-            <div class="payment-item-value">$${item.result}</div>
-          `;
-          div.addEventListener('click', () => {
-            displayValue = item.result;
-            expr = '';
-            previousValue = null;
-            currentOp = null;
-            shouldResetDisplay = true;
-            updateScreen();
-          });
-          historyList.appendChild(div);
+  function toggleView() {
+    const editor = document.querySelector(".editor");
+    const preview = document.getElementById("previewPanel");
+    
+    isEditorMode = !isEditorMode;
+    
+    if (isEditorMode) {
+      editor.classList.remove("hidden");
+      preview.classList.remove("active");
+    } else {
+      editor.classList.add("hidden");
+      preview.classList.add("active");
+    }
+  }
+
+  // SEARCH FUNCTIONALITY
+  function openSearch() {
+    document.getElementById("searchModal").classList.add("active");
+    document.getElementById("searchInput").focus();
+  }
+
+  function closeSearch() {
+    document.getElementById("searchModal").classList.remove("active");
+    searchResults = [];
+    currentSearchIndex = 0;
+  }
+
+  function performSearch() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const code = document.getElementById("codeEditor").value;
+    const resultsDiv = document.getElementById("searchResults");
+
+    if (query.length === 0) {
+      resultsDiv.innerHTML = "";
+      searchResults = [];
+      return;
+    }
+
+    searchResults = [];
+    const lines = code.split("\n");
+    
+    lines.forEach((line, lineNum) => {
+      let index = 0;
+      while ((index = line.toLowerCase().indexOf(query, index)) !== -1) {
+        searchResults.push({
+          line: lineNum + 1,
+          column: index + 1,
+          text: line.trim(),
+          fullLine: line
         });
+        index += query.length;
       }
+    });
 
-      function addToHistory(expression, result) {
-        const history = loadHistory();
-        history.push({
-          expr: expression,
-          result: formatNumber(result),
-          timestamp: new Date().toLocaleTimeString('id-ID')
-        });
-        if (history.length > 50) history.shift();
-        saveHistory(history);
-        displayHistory();
-      }
+    currentSearchIndex = 0;
+    displaySearchResults();
+  }
 
-      confirmDeleteBtn.addEventListener('click', () => {
-        localStorage.removeItem(HISTORY_KEY);
-        displayHistory();
-        clearHistoryCheckbox.checked = false;
-      });
+  function displaySearchResults() {
+    const resultsDiv = document.getElementById("searchResults");
+    resultsDiv.innerHTML = "";
 
-      function formatNumber(num) {
-        if (num === null || num === undefined || !Number.isFinite(num)) return '0';
-        const numStr = String(num);
-        if (numStr.includes('e') || numStr.includes('E')) {
-          return num.toLocaleString('id-ID', {
-            maximumFractionDigits: 10,
-            minimumFractionDigits: 0
-          });
-        }
-        if (numStr.includes('.')) {
-          const [int, dec] = numStr.split('.');
-          const formattedInt = parseInt(int).toLocaleString('id-ID');
-          return formattedInt + '.' + dec;
-        }
-        return parseInt(numStr).toLocaleString('id-ID');
-      }
+    if (searchResults.length === 0) {
+      resultsDiv.innerHTML = '<div style="color: #888;">Tidak ada hasil ditemukan</div>';
+      return;
+    }
 
-      function updateScreen() {
-        exprEl.textContent = expr || '';
-        resultEl.textContent = formatNumber(parseFloat(displayValue) || 0);
-      }
+    searchResults.forEach((result, idx) => {
+      const div = document.createElement("div");
+      div.className = "result-item" + (idx === currentSearchIndex ? " active" : "");
+      div.innerHTML = `<strong>Baris ${result.line}:</strong> ${result.text.substring(0, 50)}...`;
+      div.onclick = () => {
+        currentSearchIndex = idx;
+        goToResult();
+      };
+      resultsDiv.appendChild(div);
+    });
 
-      function append(v) {
-        if (shouldResetDisplay) {
-          displayValue = v;
-          shouldResetDisplay = false;
-        } else {
-          if (v === '.') {
-            if (displayValue.includes('.')) return;
-          }
-          displayValue = displayValue === '0' ? v : displayValue + v;
-        }
-        updateScreen();
-      }
+    resultsDiv.innerHTML = `<div style="color: #0078ff; margin-bottom: 10px;">Ditemukan: ${searchResults.length} hasil</div>` + resultsDiv.innerHTML;
+  }
 
-      function handleOperator(op) {
-        if (currentOp !== null && !shouldResetDisplay) {
-          const curr = parseFloat(displayValue);
-          const prev = parseFloat(previousValue);
-          let result;
-          switch (currentOp) {
-            case '+': result = prev + curr; break;
-            case '-': result = prev - curr; break;
-            case '*': result = prev * curr; break;
-            case '/': result = prev / curr; break;
-            case '%': result = prev % curr; break;
-            default: result = curr;
-          }
-          displayValue = String(result);
-          expr = formatNumber(result) + ' ' + op;
-        } else {
-          expr = formatNumber(parseFloat(displayValue)) + ' ' + op;
-        }
-        previousValue = displayValue;
-        currentOp = op;
-        shouldResetDisplay = true;
-        updateScreen();
-      }
+  function goToNextResult() {
+    if (searchResults.length === 0) return;
+    currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+    goToResult();
+  }
 
-      function clearAll() {
-        displayValue = '0';
-        expr = '';
-        previousValue = null;
-        currentOp = null;
-        shouldResetDisplay = false;
-        updateScreen();
-      }
+  function goToPreviousResult() {
+    if (searchResults.length === 0) return;
+    currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+    goToResult();
+  }
 
-      function backspace() {
-        if (displayValue.length > 1) {
-          displayValue = displayValue.slice(0, -1);
-        } else {
-          displayValue = '0';
-        }
-        updateScreen();
-      }
+  function goToResult() {
+    if (searchResults.length === 0) return;
+    
+    const result = searchResults[currentSearchIndex];
+    const textarea = document.getElementById("codeEditor");
+    const query = document.getElementById("searchInput").value;
+    const lines = textarea.value.split("\n");
+    
+    let position = 0;
+    for (let i = 0; i < result.line - 1; i++) {
+      position += lines[i].length + 1;
+    }
+    position += result.column - 1;
 
-      function equals() {
-        if (currentOp === null || shouldResetDisplay) return;
-        const curr = parseFloat(displayValue);
-        const prev = parseFloat(previousValue);
-        let result;
-        switch (currentOp) {
-          case '+': result = prev + curr; break;
-          case '-': result = prev - curr; break;
-          case '*': result = prev * curr; break;
-          case '/': result = prev / curr; break;
-          case '%': result = prev % curr; break;
-          default: result = curr;
-        }
-        if (!Number.isFinite(result)) {
-          resultEl.textContent = 'Error';
-          return;
-        }
-        const expStr = formatNumber(prev) + ' ' + currentOp + ' ' + formatNumber(curr);
-        addToHistory(expStr, result);
-        displayValue = String(result);
-        expr = formatNumber(prev) + ' ' + currentOp + ' ' + formatNumber(curr) + ' =';
-        previousValue = null;
-        currentOp = null;
-        shouldResetDisplay = true;
-        updateScreen();
-      }
+    textarea.focus();
+    textarea.setSelectionRange(position, position + query.length);
+    
+    // Scroll ke posisi
+    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
+    const scrollPosition = (result.line - 1) * lineHeight - textarea.clientHeight / 2;
+    textarea.scrollTop = Math.max(0, scrollPosition);
+    
+    displaySearchResults();
+  }
 
-      keys.forEach(k => {
-        k.addEventListener('click', function() {
-          const v = this.getAttribute('data-value');
-          const action = this.getAttribute('data-action');
-          if (action === 'clear') { clearAll(); return; }
-          if (action === 'back') { backspace(); return; }
-          if (action === 'equals') { equals(); return; }
-          if (['+', '-', '*', '/', '%'].includes(v)) { handleOperator(v); return; }
-          if (v) { append(v); }
-        });
-      });
+  // ERROR HANDLING
+  function showError(title, message) {
+    document.getElementById("errorTitle").textContent = title;
+    document.getElementById("errorDetails").textContent = message;
+    document.getElementById("errorModal").classList.add("active");
+  }
 
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { equals(); e.preventDefault(); }
-        else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
-        else if (e.key === 'Escape') { clearAll(); e.preventDefault(); }
-        else if (['+', '-', '*', '/', '%'].includes(e.key)) { handleOperator(e.key); e.preventDefault(); }
-        else if ('0123456789+*/.%'.includes(e.key)) { append(e.key); e.preventDefault(); }
-      });
+  function closeError() {
+    document.getElementById("errorModal").classList.remove("active");
+  }
 
-      updateScreen();
-      displayHistory();
-    })();
-  </script>
+  // Monitor untuk JavaScript errors
+  window.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "error") {
+      showError("JavaScript Error", event.data.message);
+      document.getElementById("errorBadge").style.display = "inline-block";
+    }
+  });
+
+  updatePreview();
+</script>
+
 </body>
 </html>
